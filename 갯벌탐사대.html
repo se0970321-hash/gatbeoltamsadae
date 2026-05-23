@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+<title>갯벌탐사대 🐚</title>
+<style>
+@font-face {
+  font-family: 'Cafe24';
+  src: url('Cafe24Ssurround.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Cafe24Air';
+  src: url('Cafe24SsurroundAir.ttf') format('truetype');
+}
+:root {
+  --sky:#A8D4EC;--blue:#7BAEC4;--blue-lt:#8DC0D4;--blue-dk:#3A8AAA;
+  --blue-bg:#EAF4F8;--blue-bd:#C8E0EC;--cream:#FDF8EE;
+  --yellow:#FFC342;--yellow-dk:#E09A10;--green:#A8D0B0;--green-dk:#7AAA88;
+  --coral:#E8845A;--sand:#C8A87A;--mocha:#8B7355;--mocha-dk:#6B5A3E;
+  --text-dk:#2A4A5E;--text-md:#5A7A8A;--text-lt:#8AAABB;
+  --r:14px;--rs:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Cafe24Air','Nanum Gothic',sans-serif;background:#D8EEF8;min-height:100vh;display:flex;justify-content:center;padding:24px 16px 80px;word-break:keep-all;}
+.app{width:100%;max-width:640px;border-radius:20px;overflow:hidden;box-shadow:0 8px 40px rgba(60,120,160,0.2);}
+#page-intro{display:block;}
+#page-main{display:none;}
+.cover-wrap{position:relative;}
+.cover-img{width:100%;display:block;}
+.cover-fb{width:100%;height:360px;background:linear-gradient(180deg,var(--sky) 0%,#5AAAC8 60%,var(--sand) 100%);display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
+.cover-fb h1{font-size:42px;color:white;text-shadow:2px 3px 0 rgba(0,0,0,0.15);}
+.cover-fb p{font-size:19px;color:rgba(255,255,255,0.9);}
+.cover-ov{position:absolute;bottom:0;left:0;right:0;padding:20px 20px 24px;background:linear-gradient(transparent,rgba(160,110,50,0.82) 40%);}
+.nrow{background:rgba(255,255,255,0.92);border-radius:var(--rs);padding:12px 14px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center;margin-bottom:14px;}
+.nf{display:flex;align-items:center;gap:5px;}
+.nf label{font-size:17px;font-weight:700;color:var(--mocha-dk);}
+.nf input{border:none;border-bottom:1.5px solid var(--sand);padding:3px 5px;font-size:17px;font-family:'Cafe24Air','Nanum Gothic',sans-serif;background:transparent;outline:none;color:var(--mocha-dk);}
+.nf input.w{width:75px;}
+.nf input.s{width:45px;}
+.start-btn{font-family:'Cafe24',sans-serif;width:100%;padding:14px;background:var(--yellow);border:none;border-radius:30px;font-family:'Cafe24Air','Nanum Gothic',sans-serif;font-size:21px;color:var(--mocha-dk);cursor:pointer;box-shadow:0 4px 0 var(--yellow-dk);transition:all 0.15s;}
+.start-btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--yellow-dk);}
+.main-hd{background:var(--blue);padding:16px 20px 34px;position:relative;overflow:hidden;}
+.main-hd::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:28px;background:var(--cream);clip-path:ellipse(55% 100% at 50% 100%);}
+.hd-badge{font-family:'Cafe24',sans-serif;display:inline-block;background:rgba(255,255,255,0.22);color:white;font-size:16px;padding:3px 11px;border-radius:20px;margin-bottom:6px;border:1px solid rgba(255,255,255,0.35);}
+.hd-title{font-family:'Cafe24',sans-serif;font-size:27px;color:white;line-height:1.3;}
+.hd-sub{font-size:17px;color:rgba(255,255,255,0.88);margin-top:3px;}
+.hd-g{position:absolute;right:14px;top:10px;width:68px;height:68px;object-fit:contain;opacity:0.9;animation:flt 4s ease-in-out infinite;}
+@keyframes flt{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
+.nav{background:var(--blue-bg);display:flex;gap:2px;padding:0 10px;border-bottom:2px solid var(--blue-bd);overflow-x:auto;scrollbar-width:none;justify-content:center;}
+.nav::-webkit-scrollbar{display:none;}
+.nb{font-family:'Cafe24Air','Nanum Gothic',sans-serif;flex-shrink:0;padding:9px 8px;font-size:15px;color:var(--text-lt);border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;}
+.nb.on{color:var(--text-dk);border-bottom:3px solid var(--yellow);background:var(--cream);border-radius:8px 8px 0 0;}
+.body{background:var(--cream);padding:20px 18px 36px;}
+.tab{display:none;}
+.tab.on{display:block;animation:fu 0.3s ease;}
+@keyframes fu{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.badge{font-family:'Cafe24',sans-serif;display:inline-flex;align-items:center;gap:5px;background:var(--yellow);color:var(--mocha-dk);font-size:16px;padding:4px 14px;border-radius:20px;margin-bottom:12px;}
+.desc{font-size:17px;color:var(--text-md);margin-bottom:14px;line-height:1.7;word-break:keep-all;}
+/* 개념학습 */
+.ccg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;}
+.cc{background:white;border:2px solid var(--blue-bd);border-radius:var(--r);padding:14px 10px;text-align:center;cursor:pointer;position:relative;overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;}
+.cc:hover{transform:translateY(-3px);box-shadow:0 6px 18px rgba(100,160,200,0.15);}
+.cc::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;border-radius:var(--r) var(--r) 0 0;}
+.cc.t1::before{background:var(--blue);}.cc.t2::before{background:var(--green);}.cc.t3::before{background:var(--yellow);}
+.cce{height:60px;border-radius:8px;margin-bottom:9px;display:flex;align-items:center;justify-content:center;font-size:30px;overflow:hidden;}
+.cce img{width:100%;height:100%;object-fit:cover;border-radius:8px;}
+.b1{background:#E3F2F8;}.b2{background:#E8F4EA;}.b3{background:#FEF8E0;}
+.cc h4{font-family:'Cafe24Air',sans-serif;font-size:15px;color:var(--text-dk);line-height:1.55;margin-bottom:8px;}
+.ccgo{display:inline-block;padding:4px 10px;background:var(--yellow);border-radius:20px;font-size:14px;color:var(--mocha-dk);}
+.slw{display:none;}
+.slw.on{display:block;}
+.slbk{display:flex;align-items:center;gap:6px;background:none;border:none;font-family:'Cafe24Air','Nanum Gothic',sans-serif;font-size:17px;color:var(--text-md);cursor:pointer;margin-bottom:12px;padding:4px 0;}
+.slbox{background:white;border:2px solid var(--blue-bd);border-radius:var(--r);overflow:hidden;}
+.slhd{padding:11px 16px;display:flex;align-items:center;justify-content:space-between;}
+.slhd span{color:white;font-size:17px;}
+.sldots{display:flex;gap:5px;}
+.sldot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.4);}
+.sldot.on{background:white;}
+.slc{display:none;}
+.slc.on{display:grid;grid-template-columns:1fr 1fr;}
+.slim{height:160px;background:#E3F2F8;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:36px;border-right:1.5px solid var(--blue-bd);overflow:hidden;}
+.slim img{width:100%;height:100%;object-fit:cover;}
+.slim small{font-size:14px;color:var(--blue);font-family:'Cafe24Air','Nanum Gothic',sans-serif;margin-top:4px;}
+.sltxt{padding:14px;}
+.sltxt h5{font-family:'Cafe24',sans-serif;font-size:18px;color:var(--text-dk);margin-bottom:7px;}
+.sltxt p{font-size:16px;color:var(--text-md);line-height:1.7;}
+.slnav{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-top:1.5px solid var(--blue-bd);background:#F5FBFE;}
+.slnbtn{padding:7px 16px;border-radius:20px;border:1.5px solid var(--blue);background:white;font-family:'Cafe24Air','Nanum Gothic',sans-serif;font-size:16px;color:var(--text-dk);cursor:pointer;}
+.slnbtn:disabled{opacity:0.3;cursor:not-allowed;}
+.slnbtn.nx{background:var(--blue-lt);color:white;border-color:var(--blue-lt);}
+.slnbtn.dn{background:var(--green);color:white;border-color:var(--green);}
+.slpg{font-size:15px;color:var(--text-lt);}
+/* 탐구일지 */
+.jbox{background:white;border:2px solid var(--blue-bd);border-radius:var(--r);padding:18px;margin-bottom:14px;}
+.qb{margin-bottom:17px;}
+.ql{display:flex;align-items:center;gap:7px;font-size:18px;color:var(--text-dk);margin-bottom:9px;}
+.qn{font-family:'Cafe24',sans-serif;background:var(--blue-lt);color:white;font-size:15px;padding:2px 9px;border-radius:10px;flex-shrink:0;}
+.chips{display:flex;gap:7px;flex-wrap:wrap;}
+.chip{padding:7px 13px;border-radius:20px;border:1.5px solid var(--blue-bd);background:#F5FBFE;font-family:'Cafe24Air','Nanum Gothic',sans-serif;font-size:16px;color:var(--text-md);cursor:pointer;transition:all 0.15s;}
+.chip.on{background:var(--blue-lt);color:white;border-color:var(--blue-lt);}
+.jta{width:100%;padding:12px 14px;border:1.5px solid var(--blue-bd);border-radius:var(--rs);font-family:'Cafe24Air','Nanum Gothic',sans-serif;font-size:17px;color:var(--text-dk);background:#F5FBFE;resize:vertical;min-height:80px;line-height:1.7;outline:none;}
+.jta:focus{border-color:var(--blue);}
+.jta::placeholder{color:var(--text-lt);}
+.date-inp{border:1.5px solid var(--blue-bd);border-radius:var(--rs);padding:6px 8px;font-family:'Cafe24Air','Nanum Gothic',sans-serif;font-size:15px;color:var(--text-dk);background:white;outline:none;width:160px;}
+.name-inp{border:1.5px solid var(--blue-bd);border-radius:var(--rs);padding:6px 10px;font-family:'Cafe24Air','Nanum Gothic',sans-serif;font-size:17px;color:var(--text-dk);background:white;outline:none;width:100px;}
+.fb-btn{width:100%;padding:13px;background:#FFFBE8;border:1.5px dashed var(--yellow);border-radius:var(--rs);font-family:'Cafe24Air','Nanum Gothic',sans-serif;font-size:18px;color:var(--mocha);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;transition:all 0.2s;}
+.fb-btn:hover{background:#FFF5CC;}
+.fbbox{background:#FFFBE8;border:1.5px dashed var(--yellow);border-radius:var(--rs);padding:13px 15px;margin-top:10px;display:none;gap:10px;align-items:flex-start;}
+.fbbox.on{display:flex;animation:fu 0.3s ease;}
+.fbicon{font-size:26px;flex-shrink:0;}
+.fbtxt{font-size:17px;color:#7A6020;line-height:1.7;}
+.save-btn{font-family:'Cafe24',sans-serif;width:100%;padding:13px;background:var(--blue-lt);color:white;border:none;border-radius:var(--rs);font-family:'Cafe24Air','Nanum Gothic',sans-serif;font-size:19px;cursor:pointer;margin-top:14px;box-shadow:0 3px 0 var(--blue-dk);transition:all 0.15s;}
+.save-btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--blue-dk);}
+.ri{background:white;border:1.5px solid var(--blue-bd);border-radius:var(--rs);padding:14px;margin-bottom:10px;}
+.rhd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:8px;}
+.rhd-left{display:flex;flex-direction:column;gap:5px;flex:1;min-width:0;}
+.rdt{font-size:16px;color:var(--text-lt);}
+.rtags{display:flex;gap:5px;flex-wrap:wrap;}
+.rtag{font-size:15px;padding:2px 9px;border-radius:20px;}
+.rtag.sal{background:var(--blue-bg);color:var(--text-dk);}
+.rtag.beh{background:#FEF8E0;color:var(--mocha);}
+.rbody{font-size:17px;color:var(--text-md);line-height:1.65;}
+.rbody p{margin-bottom:4px;}
+.rdel{background:none;border:none;font-size:19px;color:var(--text-lt);cursor:pointer;flex-shrink:0;padding:2px 4px;}
+.rdel:hover{color:var(--coral);}
+.empty{text-align:center;padding:36px 20px;color:var(--text-lt);font-size:18px;}
+.ei{font-size:40px;display:block;margin-bottom:10px;opacity:0.5;}
+.ld{display:inline-flex;gap:4px;align-items:center;}
+.ld span{width:7px;height:7px;border-radius:50%;background:var(--yellow-dk);animation:bc 1s infinite;}
+.ld span:nth-child(2){animation-delay:0.15s;}
+.ld span:nth-child(3){animation-delay:0.3s;}
+@keyframes bc{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+/* 행동판단 */
+.scbox{background:white;border:2px solid var(--blue-bd);border-radius:var(--r);overflow:hidden;margin-bottom:14px;}
+.scimg{width:100%;height:150px;object-fit:cover;display:block;}
+.scph{width:100%;height:150px;display:flex;align-items:center;justify-content:center;font-size:52px;}
+.scbody{padding:14px;}
+.scsit{background:#FEF8E0;border-left:3px solid var(--yellow);border-radius:0 8px 8px 0;padding:11px 13px;font-size:17px;color:#5A4A20;line-height:1.7;margin-bottom:13px;}
+.scq{font-size:18px;color:var(--text-dk);margin-bottom:10px;}
+.scchs{display:flex;gap:8px;flex-wrap:wrap;}
+.scbtn{flex:1;min-width:100px;padding:11px 8px;border-radius:var(--rs);border:1.5px solid var(--blue-bd);background:white;font-family:'Cafe24Air','Nanum Gothic',sans-serif;font-size:17px;color:var(--text-md);cursor:pointer;text-align:center;transition:all 0.15s;}
+.scbtn:hover{border-color:var(--blue);background:var(--blue-bg);}
+.scbtn.ok{background:#E8F4EA;border-color:var(--green-dk);color:#3A6A50;}
+.scbtn.no{background:#FEF0EA;border-color:var(--coral);color:#904A30;}
+.scbtn:disabled{cursor:not-allowed;}
+.fb{margin-top:12px;padding:12px 14px;border-radius:var(--rs);font-size:17px;line-height:1.7;display:none;}
+.fb.on{display:block;animation:fu 0.3s ease;}
+.fb.ok{background:#E8F4EA;border:1.5px solid var(--green);color:#3A6A50;}
+.fb.no{background:#FEF0EA;border:1.5px solid var(--coral);color:#904A30;}
+.scnav{display:flex;justify-content:space-between;align-items:center;margin-top:12px;}
+.n2btn{padding:8px 16px;border-radius:20px;border:1.5px solid var(--blue);background:white;font-family:'Cafe24Air','Nanum Gothic',sans-serif;font-size:15px;color:var(--text-dk);cursor:pointer;}
+.n2btn:disabled{opacity:0.3;cursor:not-allowed;}
+.pdots{display:flex;gap:6px;}
+.pdot{width:9px;height:9px;border-radius:50%;background:var(--blue-bd);}
+.pdot.on{background:var(--blue-lt);}
+.pdot.dn{background:var(--green);}
+/* 갯벌탐정 */
+.detbox{background:white;border:2px solid var(--blue-bd);border-radius:var(--r);overflow:hidden;margin-bottom:14px;}
+.detbody{padding:14px;}
+.clue{background:#FFFBE8;border:1.5px dashed var(--yellow);border-radius:var(--rs);padding:12px 14px;margin-bottom:13px;}
+.clue h4{font-size:18px;color:var(--mocha);margin-bottom:7px;}
+.clueitem{font-size:17px;color:var(--mocha-dk);margin-bottom:4px;line-height:1.6;}
+.detq{font-size:18px;color:var(--text-dk);margin-bottom:10px;}
+.detchs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.detbtn{padding:12px 10px;border-radius:var(--rs);border:1.5px solid var(--blue-bd);background:white;font-family:'Cafe24Air','Nanum Gothic',sans-serif;font-size:16px;color:var(--text-md);cursor:pointer;text-align:center;line-height:1.5;transition:all 0.15s;}
+.detbtn:hover{border-color:var(--blue);background:var(--blue-bg);}
+.detbtn.ok{background:#E8F4EA;border-color:var(--green-dk);color:#3A6A50;}
+.detbtn.no{background:#FEF0EA;border-color:var(--coral);color:#904A30;}
+.detbtn:disabled{cursor:not-allowed;}
+.reason{margin-top:10px;display:none;}
+.reason.on{display:block;animation:fu 0.3s ease;}
+.rl{font-size:17px;color:var(--text-dk);margin-bottom:6px;}
+.detnav{display:flex;justify-content:space-between;align-items:center;margin-top:12px;}
+/* 퀴즈 */
+.qpbar{height:8px;background:var(--blue-bd);border-radius:4px;margin-bottom:16px;overflow:hidden;}
+.qpfill{height:100%;background:var(--blue-lt);border-radius:4px;transition:width 0.4s;}
+.qcard{background:white;border:2px solid var(--blue-bd);border-radius:var(--r);padding:20px;}
+.qnum{font-size:16px;color:var(--text-lt);margin-bottom:8px;}
+.qq{font-size:20px;color:var(--text-dk);line-height:1.6;margin-bottom:18px;}
+.qopts{display:flex;flex-direction:column;gap:9px;}
+.qopt{padding:13px 16px;border-radius:var(--rs);border:1.5px solid var(--blue-bd);background:white;font-family:'Cafe24Air','Nanum Gothic',sans-serif;font-size:18px;color:var(--text-dk);cursor:pointer;text-align:left;display:flex;align-items:center;gap:12px;transition:all 0.15s;}
+.qopt:hover{border-color:var(--blue);background:var(--blue-bg);}
+.qopt.ok{background:#E8F4EA;border-color:var(--green-dk);color:#3A6A50;}
+.qopt.no{background:#FEF0EA;border-color:var(--coral);color:#904A30;}
+.qopt:disabled{cursor:not-allowed;}
+.olt{width:27px;height:27px;border-radius:50%;background:var(--blue-bd);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.qopt.ok .olt{background:var(--green);color:white;}
+.qopt.no .olt{background:var(--coral);color:white;}
+.oxrow{display:flex;gap:14px;}
+.oxbtn{flex:1;padding:22px;border-radius:var(--rs);border:1.5px solid var(--blue-bd);background:white;font-family:'Cafe24Air','Nanum Gothic',sans-serif;font-size:42px;cursor:pointer;text-align:center;transition:all 0.15s;color:var(--text-md);}
+.oxbtn:hover{transform:scale(1.04);}
+.oxbtn.ok{background:#E8F4EA;border-color:var(--green-dk);}
+.oxbtn.no{background:#FEF0EA;border-color:var(--coral);}
+.oxbtn:disabled{cursor:not-allowed;}
+.qfb{margin-top:14px;padding:13px 15px;border-radius:var(--rs);font-size:17px;line-height:1.7;display:none;}
+.qfb.on{display:block;animation:fu 0.3s ease;}
+.qfb.ok{background:#E8F4EA;border:1.5px solid var(--green);color:#3A6A50;}
+.qfb.no{background:#FEF0EA;border:1.5px solid var(--coral);color:#904A30;}
+.clink{display:inline-flex;align-items:center;gap:5px;margin-top:8px;padding:6px 14px;background:var(--blue-lt);color:white;border:none;border-radius:20px;font-family:'Cafe24Air','Nanum Gothic',sans-serif;font-size:16px;cursor:pointer;}
+.qnext{width:100%;margin-top:14px;padding:13px;background:var(--blue-lt);color:white;border:none;border-radius:var(--rs);font-family:'Cafe24Air','Nanum Gothic',sans-serif;font-size:19px;cursor:pointer;display:none;box-shadow:0 3px 0 var(--blue-dk);}
+.qnext.on{display:block;animation:fu 0.3s ease;}
+.qintro{background:white;border:2px solid var(--blue-bd);border-radius:var(--r);padding:28px 20px;text-align:center;}
+.qintro h3{font-size:24px;color:var(--text-dk);margin-bottom:8px;}
+.qintro p{font-size:17px;color:var(--text-md);line-height:1.7;margin-bottom:16px;}
+.ichips{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;}
+.ichip{font-size:16px;padding:4px 13px;background:var(--blue-bg);color:var(--text-dk);border-radius:20px;}
+.qstart{font-family:'Cafe24',sans-serif;padding:13px 36px;background:var(--blue-lt);color:white;border:none;border-radius:30px;font-family:'Cafe24Air','Nanum Gothic',sans-serif;font-size:20px;cursor:pointer;box-shadow:0 3px 0 var(--blue-dk);}
+.res{text-align:center;padding:36px 20px;}
+.res .em{font-size:64px;display:block;margin-bottom:14px;}
+.res h3{font-size:26px;color:var(--text-dk);margin-bottom:6px;}
+.res .sc{font-size:46px;color:var(--blue);margin:12px 0 6px;}
+.res p{font-size:18px;color:var(--text-md);margin-bottom:20px;line-height:1.7;}
+.resbtns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.rbtn{padding:12px 26px;border-radius:30px;border:none;font-family:'Cafe24Air','Nanum Gothic',sans-serif;font-size:18px;cursor:pointer;}
+.rbtn.retry{background:var(--coral);color:white;}
+.rbtn.review{background:var(--blue-lt);color:white;}
+/* 고둥이 */
+.gf{position:fixed;bottom:26px;right:26px;z-index:999;display:none;flex-direction:column;align-items:flex-end;gap:8px;}
+.gfbbl{background:white;border:1.5px solid var(--blue-bd);border-radius:14px 14px 0 14px;padding:9px 14px;font-size:17px;color:var(--text-dk);box-shadow:0 3px 14px rgba(100,160,200,0.2);display:none;max-width:200px;line-height:1.6;}
+.gfbbl.on{display:block;animation:fu 0.25s ease;}
+.gfchat{background:white;border:1.5px solid var(--blue-bd);border-radius:16px 16px 0 16px;padding:16px;box-shadow:0 4px 20px rgba(100,160,200,0.2);width:300px;display:none;}
+.gfchat.on{display:block;animation:fu 0.3s ease;}
+.gfchd{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--blue-bd);}
+.gfchd span{font-size:18px;color:var(--text-dk);}
+.gfcls{margin-left:auto;background:none;border:none;font-size:21px;color:var(--text-lt);cursor:pointer;}
+.gfresp{font-size:17px;color:var(--text-md);line-height:1.7;min-height:60px;margin-bottom:10px;}
+.gfirow{display:flex;gap:7px;}
+.gfinp{flex:1;padding:8px 11px;border:1.5px solid var(--blue-bd);border-radius:20px;font-family:'Cafe24Air','Nanum Gothic',sans-serif;font-size:16px;outline:none;}
+.gfinp:focus{border-color:var(--blue);}
+.gfsend{padding:8px 14px;background:var(--blue-lt);color:white;border:none;border-radius:20px;font-family:'Cafe24Air','Nanum Gothic',sans-serif;font-size:16px;cursor:pointer;}
+.gfbtn{width:84px;height:84px;border-radius:50%;background:white;border:2px solid var(--blue-bd);cursor:pointer;padding:0;overflow:hidden;box-shadow:0 4px 16px rgba(100,160,200,0.25);animation:flt 3s ease-in-out infinite;}
+.gfbtn:hover{transform:scale(1.08);}
+.gfbtn img{width:100%;height:100%;object-fit:cover;}
+.gfwig{animation:wig 0.5s ease !important;}
+@keyframes wig{0%,100%{transform:rotate(0);}20%{transform:rotate(-12deg);}40%{transform:rotate(12deg);}60%{transform:rotate(-8deg);}80%{transform:rotate(8deg);}}
+.deco{background:linear-gradient(180deg,var(--cream) 0%,#C8E4F0 100%);padding:14px 0 10px;margin:20px -18px -36px;text-align:center;font-size:23px;letter-spacing:6px;opacity:0.7;}
+.toast{position:fixed;bottom:110px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--mocha-dk);color:white;padding:10px 22px;border-radius:30px;font-size:18px;z-index:9999;opacity:0;transition:all 0.3s;white-space:nowrap;pointer-events:none;}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- 표지 -->
+<div id="page-intro">
+  <div class="cover-wrap">
+    <img class="cover-img" src="images/cover.png" alt="갯벌탐사대 표지"
+         onerror="this.style.display='none';document.getElementById('cfb').style.display='flex'">
+    <div id="cfb" class="cover-fb">
+      <div style="font-size:64px">🐚</div>
+      <h1>갯벌탐사대</h1>
+      <p>갯고둥과 함께 떠나는 갯벌 탐험</p>
+    </div>
+    <div class="cover-ov">
+      <div class="nrow">
+        <div class="nf">
+          <input id="is" class="s" placeholder="신대" style="width:55px;">
+          <span style="font-size:17px;font-weight:700;color:var(--mocha-dk);font-family:'Cafe24Air','Nanum Gothic',sans-serif;white-space:nowrap;">초등학교</span>
+        </div>
+        <div class="nf"><label>학년</label><input id="ig" class="s" placeholder="3"></div>
+        <div class="nf"><label>반</label><input id="ic" class="s" placeholder="2"></div>
+        <div class="nf"><label>이름</label><input id="in" class="w" placeholder=""></div>
+      </div>
+      <button class="start-btn" type="button" onclick="goMain()">🌊 갯벌 탐사하러 가기 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- 메인 -->
+<div id="page-main">
+  <div class="main-hd">
+    <img class="hd-g" src="images/godungi.png" alt="고둥이"
+         onerror="this.style.display='none'">
+    <div class="hd-badge">갯벌탐사대</div>
+    <div class="hd-title">갯고둥과 함께 떠나는<br>갯벌 탐험</div>
+    <div class="hd-sub" id="hdname"></div>
+  </div>
+  <div class="nav">
+    <button class="nb on" data-tab="t0" onclick="switchTab(this)">🔬 탐구일지</button>
+    <button class="nb" data-tab="t1" onclick="switchTab(this)">📖 개념학습</button>
+    <button class="nb" data-tab="t2" onclick="switchTab(this)">🐚 행동 판단</button>
+    <button class="nb" data-tab="t3" onclick="switchTab(this)">🕵️ 갯벌 탐정</button>
+    <button class="nb" data-tab="t4" onclick="switchTab(this)">✏️ 복습 퀴즈</button>
+  </div>
+  <div class="body">
+
+    <!-- TAB0: 탐구일지 -->
+    <div class="tab on" id="t0">
+      <div class="badge">🔬 오늘의 탐구일지</div>
+      <p class="desc">프로그램으로 갯고둥을 관찰한 뒤 느낀 점을 기록해요.<br>기록은 이 기기에 저장돼요!</p>
+      <div class="jbox">
+        <div class="qb">
+          <div class="ql"><span class="qn">Q1</span> 날짜와 이름</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+            <div style="display:flex;align-items:center;gap:6px;"><label style="font-size:13px;color:var(--text-md);">날짜</label><input type="date" id="jdate" class="date-inp"></div>
+            <div style="display:flex;align-items:center;gap:6px;"><label style="font-size:13px;color:var(--text-md);">이름</label><input type="text" id="jname" class="name-inp" placeholder="이름"></div>
+          </div>
+        </div>
+        <div class="qb">
+          <div class="ql"><span class="qn">Q2</span> 관찰한 염도 조건 (여러 개 가능)</div>
+          <div class="chips" id="sal">
+            <button class="chip" onclick="tc(this,'sal')">💧 3 PSU</button>
+            <button class="chip" onclick="tc(this,'sal')">🌧️ 13 PSU</button>
+            <button class="chip" onclick="tc(this,'sal')">🌊 33 PSU</button>
+            <button class="chip" onclick="tc(this,'sal')">☀️ 43 PSU</button>
+          </div>
+        </div>
+        <div class="qb">
+          <div class="ql"><span class="qn">Q3</span> 관찰한 행동 유형</div>
+          <div class="chips" id="beh">
+            <button class="chip" onclick="tc(this,'beh')">🛡️ 방어행동</button>
+            <button class="chip" onclick="tc(this,'beh')">🏃 회피행동</button>
+            <button class="chip" onclick="tc(this,'beh')">✨ 일상행동</button>
+            <button class="chip" onclick="tc(this,'beh')">🛡️→🏃 방어 후 회피</button>
+          </div>
+        </div>
+        <div class="qb">
+          <div class="ql"><span class="qn">Q4</span> 가장 인상 깊었던 장면은?</div>
+          <textarea class="jta" id="jo1" placeholder="예) 3PSU에서 갯고둥이 전혀 안 움직여서 처음엔 죽은 줄 알았어요..."></textarea>
+        </div>
+        <div class="qb">
+          <div class="ql"><span class="qn">Q5</span> 갯고둥이 그렇게 행동한 이유가 무엇이라고 생각하나요?</div>
+          <textarea class="jta" id="jo2" placeholder="예) 물의 염도가 낮아져서 몸을 보호하려는 것 같아요..."></textarea>
+        </div>
+        <div class="qb">
+          <div class="ql"><span class="qn">Q6</span> 오늘 탐구를 마친 소감</div>
+          <textarea class="jta" id="jo3" placeholder="새롭게 알게 된 것, 더 궁금한 것, 느낀 점..."></textarea>
+        </div>
+        <button class="fb-btn" onclick="askFB()">🐚 고둥이에게 피드백 받기</button>
+        <div class="fbbox" id="fbbox">
+          <div class="fbicon">🐚</div>
+          <div class="fbtxt" id="fbtxt"></div>
+        </div>
+        <button class="save-btn" onclick="saveJ()">💾 탐구일지 저장하기</button>
+      </div>
+      <div class="badge" style="margin-top:4px;">📚 나의 기록</div>
+      <div id="reca"></div>
+    </div>
+
+    <!-- TAB1: 개념학습 -->
+    <div class="tab" id="t1">
+      <div id="ccv">
+        <div class="badge">📖 개념학습</div>
+        <p class="desc">아래 카드를 눌러 개념을 학습해봐요!</p>
+        <div class="ccg">
+          <div class="cc t1" onclick="openSl(0)">
+            <div class="cce b1">🐚</div>
+            <h4>갯고둥은 어떤 생물일까요?</h4>
+            <div class="ccgo">탐구하기 →</div>
+          </div>
+          <div class="cc t2" onclick="openSl(1)">
+            <div class="cce b2">🌊</div>
+            <h4>염도(짠 정도)란 무엇일까요?</h4>
+            <div class="ccgo">탐구하기 →</div>
+          </div>
+          <div class="cc t3" onclick="openSl(2)">
+            <div class="cce b3">🔬</div>
+            <h4>갯고둥은 염도에 따라 어떻게 행동할까요?</h4>
+            <div class="ccgo">탐구하기 →</div>
+          </div>
+        </div>
+      </div>
+      <!-- 슬라이드0 -->
+      <div class="slw" id="sl0">
+        <button class="slbk" onclick="closeSl()">← 카드 목록으로</button>
+        <div class="badge">🐚 갯고둥은 어떤 생물일까요?</div>
+        <div class="slbox">
+          <div class="slhd" style="background:#7BAEC4;"><span id="sl0lb">1 / 4</span><div class="sldots" id="sl0dt"></div></div>
+          <div class="slc on"><div class="slim"><img src="images/concept/01_look.jpg" onerror="this.parentElement.innerHTML='🐚<small>사진 준비 중</small>'" alt=""></div><div class="sltxt"><h5>갯고둥의 생김새</h5><p>껍데기 길이는 약 3cm예요. 탑처럼 8층으로 쌓인 나선형 껍데기를 가지고 있고 황갈색이에요. 입구는 개판(뚜껑)으로 막을 수 있어요!</p></div></div>
+          <div class="slc"><div class="slim"><img src="images/concept/02_habitat.jpg" onerror="this.parentElement.innerHTML='🌊<small>사진 준비 중</small>'" alt=""></div><div class="sltxt"><h5>갯고둥은 어디에 살까요?</h5><p>갯벌 위에서 살아요. 우리나라, 일본, 중국의 갯벌에서 볼 수 있어요. 바다와 강이 만나는 조간대에 주로 살아요!</p></div></div>
+          <div class="slc"><div class="slim"><img src="images/concept/03_food.jpg" onerror="this.parentElement.innerHTML='🍀<small>사진 준비 중</small>'" alt=""></div><div class="sltxt"><h5>갯고둥은 무엇을 먹나요?</h5><p>갯벌 표면의 아주 작은 식물(미세조류)과 썩은 유기물을 먹어요. 갯벌을 깨끗하게 유지하는 중요한 역할을 해요!</p></div></div>
+          <div class="slc"><div class="slim"><img src="images/concept/04_operculum.jpg" onerror="this.parentElement.innerHTML='🛡️<small>사진 준비 중</small>'" alt=""></div><div class="sltxt"><h5>개판은 어떤 역할을 할까요?</h5><p>힘든 상황이 되면 개판(뚜껑)으로 껍데기 입구를 꽉 막아요. 이렇게 하면 몸을 보호하고 물이 들어오는 것을 막을 수 있어요!</p></div></div>
+          <div class="slnav"><button class="slnbtn" id="sl0pv" onclick="mvSl(0,-1)" disabled>← 이전</button><span class="slpg" id="sl0pg">1 / 4</span><button class="slnbtn nx" id="sl0nx" onclick="mvSl(0,1)">다음 →</button></div>
+        </div>
+      </div>
+      <!-- 슬라이드1 -->
+      <div class="slw" id="sl1">
+        <button class="slbk" onclick="closeSl()">← 카드 목록으로</button>
+        <div class="badge">🌊 염도(짠 정도)란 무엇일까요?</div>
+        <div class="slbox">
+          <div class="slhd" style="background:#A8D0B0;"><span id="sl1lb">1 / 4</span><div class="sldots" id="sl1dt"></div></div>
+          <div class="slc on"><div class="slim" style="background:#E8F4EA;"><img src="images/concept/07_psu33.jpg" onerror="this.parentElement.innerHTML='🌊<small>사진 준비 중</small>'" alt=""></div><div class="sltxt"><h5>염도(PSU)란?</h5><p>바닷물의 짠 정도를 PSU라는 단위로 나타내요. 숫자가 클수록 더 짜요! 우리나라 바닷물은 보통 33 PSU예요.</p></div></div>
+          <div class="slc"><div class="slim" style="background:#E8F4EA;"><img src="images/concept/05_psu3.jpg" onerror="this.parentElement.innerHTML='💧<small>사진 준비 중</small>'" alt=""></div><div class="sltxt"><h5>3 PSU — 거의 민물</h5><p>비가 엄청 많이 오거나 댐에서 물을 방류했을 때 나타나요. 갯벌 생물들에게 매우 힘든 극한 환경이에요!</p></div></div>
+          <div class="slc"><div class="slim" style="background:#E8F4EA;"><img src="images/concept/06_psu13.jpg" onerror="this.parentElement.innerHTML='🌧️<small>사진 준비 중</small>'" alt=""></div><div class="sltxt"><h5>13 PSU — 집중호우 후</h5><p>집중호우 후 갯벌 표면 염도가 13 PSU 정도로 내려가기도 해요. 기후 변화로 이런 일이 점점 잦아지고 있어요!</p></div></div>
+          <div class="slc"><div class="slim" style="background:#E8F4EA;"><img src="images/concept/08_psu43.jpg" onerror="this.parentElement.innerHTML='☀️<small>사진 준비 중</small>'" alt=""></div><div class="sltxt"><h5>43 PSU — 뙤약볕 여름</h5><p>여름철 뜨거운 햇빛으로 갯벌 웅덩이 물이 증발하면 일시적으로 43 PSU 이상이 되기도 해요!</p></div></div>
+          <div class="slnav"><button class="slnbtn" id="sl1pv" onclick="mvSl(1,-1)" disabled>← 이전</button><span class="slpg" id="sl1pg">1 / 4</span><button class="slnbtn nx" id="sl1nx" onclick="mvSl(1,1)">다음 →</button></div>
+        </div>
+      </div>
+      <!-- 슬라이드2 -->
+      <div class="slw" id="sl2">
+        <button class="slbk" onclick="closeSl()">← 카드 목록으로</button>
+        <div class="badge">🔬 갯고둥의 행동 전략</div>
+        <div class="slbox">
+          <div class="slhd" style="background:#D4A840;"><span id="sl2lb">1 / 3</span><div class="sldots" id="sl2dt"></div></div>
+          <div class="slc on"><div class="slim" style="background:#FEF8E0;"><img src="images/concept/11_normal.jpg" onerror="this.parentElement.innerHTML='✨<small>사진 준비 중</small>'" alt=""></div><div class="sltxt"><h5>✨ 일상행동 (33 PSU)</h5><p>정상 염도에서는 활발하게 움직이고 먹이를 찾아 이동해요. 총 활동 시간이 가장 길어요!</p></div></div>
+          <div class="slc"><div class="slim" style="background:#FEF8E0;"><img src="images/concept/09_defense.jpg" onerror="this.parentElement.innerHTML='🛡️<small>사진 준비 중</small>'" alt=""></div><div class="sltxt"><h5>🛡️ 방어행동 (3 PSU)</h5><p>극한 스트레스 상황! 개판을 닫고 거의 움직이지 않아요. 죽은 것처럼 보이지만 살아있어요!</p></div></div>
+          <div class="slc"><div class="slim" style="background:#FEF8E0;"><img src="images/concept/10_avoid.jpg" onerror="this.parentElement.innerHTML='🏃<small>사진 준비 중</small>'" alt=""></div><div class="sltxt"><h5>🏃 회피행동 (13·43 PSU)</h5><p>처음엔 개판을 닫다가 시간이 지나면서 물 밖으로 이동하려 해요! 더 좋은 환경을 찾아가는 행동이에요.</p></div></div>
+          <div class="slnav"><button class="slnbtn" id="sl2pv" onclick="mvSl(2,-1)" disabled>← 이전</button><span class="slpg" id="sl2pg">1 / 3</span><button class="slnbtn nx" id="sl2nx" onclick="mvSl(2,1)">다음 →</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB2: 행동판단 -->
+    <div class="tab" id="t2">
+      <div class="badge">🐚 행동 판단하기</div>
+      <p class="desc">상황을 읽고 갯고둥의 행동 유형을 골라봐요!</p>
+      <div id="sca"></div>
+      <div class="scnav">
+        <button class="n2btn" id="scpv" onclick="mvSc(-1)" disabled>← 이전</button>
+        <div class="pdots" id="scdots"></div>
+        <button class="n2btn" id="scnx" onclick="mvSc(1)">다음 →</button>
+      </div>
+    </div>
+
+    <!-- TAB3: 갯벌탐정 -->
+    <div class="tab" id="t3">
+      <div class="badge">🕵️ 갯벌 탐정</div>
+      <p class="desc">갯고둥의 행동으로 갯벌 상태를 추리해봐요!</p>
+      <div id="deta"></div>
+    </div>
+
+    <!-- TAB4: 복습퀴즈 -->
+    <div class="tab" id="t4">
+      <div class="badge">✏️ 복습 퀴즈</div>
+      <div id="qzintro">
+        <div class="qintro">
+          <div style="font-size:52px;margin-bottom:12px;">🐚</div>
+          <h3>배운 내용을 확인해봐요!</h3>
+          <p>갯고둥과 염분 스트레스에 대해<br>얼마나 이해했는지 퀴즈로 확인해봐요.<br>틀려도 괜찮아요! 틀리면 개념을 다시 확인할 수 있어요.</p>
+          <div class="ichips">
+            <span class="ichip">📝 랜덤 10문제</span>
+            <span class="ichip">🔄 OX + 4지선다</span>
+            <span class="ichip">🤖 AI 맞춤 피드백</span>
+          </div>
+          <button class="qstart" onclick="startQ()">🚀 퀴즈 시작!</button>
+        </div>
+      </div>
+      <div id="qzplay" style="display:none;">
+        <div class="qpbar"><div class="qpfill" id="qpf"></div></div>
+        <div id="qzcard"></div>
+      </div>
+      <div id="qzres" style="display:none;">
+        <div style="background:white;border:2px solid var(--blue-bd);border-radius:var(--r);">
+          <div class="res" id="qzrescont"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="deco">🐠 🌿 🦀 🐚 🌊</div>
+  </div>
+</div>
+</div>
+
+<!-- 고둥이 -->
+<div class="gf" id="gf">
+  <div class="gfchat" id="gfchat">
+    <div class="gfchd">
+      <img src="images/godungi.png" style="width:30px;height:30px;border-radius:50%;object-fit:cover;" alt=""
+           onerror="this.outerHTML='<span style=font-size:22px>🐚</span>'">
+      <span>고둥이</span>
+      <button class="gfcls" onclick="togChat()">✕</button>
+    </div>
+    <div class="gfresp" id="gfresp">안녕! 나는 고둥이야 🐚 갯고둥이나 갯벌에 대해 궁금한 게 있으면 뭐든 물어봐!</div>
+    <div class="gfirow">
+      <input class="gfinp" id="gfinp" placeholder="궁금한 거 물어봐요!" onkeydown="if(event.key==='Enter')sendG()">
+      <button class="gfsend" onclick="sendG()">전송</button>
+    </div>
+  </div>
+  <div class="gfbbl" id="gfbbl"></div>
+  <button class="gfbtn" onclick="togChat()" id="gfbtn">
+    <img src="images/godungi.png" alt=""
+         onerror="this.outerHTML='<span style=font-size:30px;line-height:66px>🐚</span>'">
+  </button>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══ API 설정 (Groq) ═══
+// ═══ API 설정 (OpenAI gpt-4o-mini) ═══
+const GKEY = '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';
+const GURL = 'https://api.openai.com/v1/chat/completions';
+
+async function callGroq(systemMsg, userMsg, maxTokens) {
+  const r = await fetch(GURL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + GKEY
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: systemMsg },
+        { role: 'user', content: userMsg }
+      ],
+      max_tokens: maxTokens,
+      temperature: 0.7
+    })
+  });
+  const d = await r.json();
+  const text = d.choices?.[0]?.message?.content;
+  if (!text) throw new Error('No response');
+  return text;
+}
+
+// ═══ 데이터 ═══
+const SCD=[
+  {bg:'#C8E4F0',em:'💧',title:'상황 1',sit:'집중호우가 내린 다음 날, 갯벌의 염도가 3 PSU로 내려갔어요. 갯고둥이 껍데기 안으로 몸을 완전히 숨기고 개판을 꽉 닫은 채 움직이지 않고 있어요.',q:'이 갯고둥은 어떤 행동을 하고 있을까요?',opts:['✨ 일상행동','🛡️ 방어행동','🏃 회피행동'],c:1,ok:'⭕ 맞아요! 3 PSU 극한 스트레스 상황에서 개판을 닫고 움직임을 최소화하는 방어행동이에요. 죽은 것처럼 보이지만 살아있어요!',no:'❌ 다시 생각해봐요! 개판을 꽉 닫고 움직이지 않는 행동의 이름은 무엇일까요?'},
+  {bg:'#D8F0E0',em:'🌊',title:'상황 2',sit:'맑고 화창한 날, 갯벌 염도가 33 PSU예요. 갯고둥이 갯벌 표면을 천천히 이동하며 미세조류를 먹고 있어요. 더듬이를 내밀고 활발하게 돌아다녀요.',q:'이 갯고둥은 어떤 행동을 하고 있을까요?',opts:['✨ 일상행동','🛡️ 방어행동','🏃 회피행동'],c:0,ok:'⭕ 정답! 33 PSU 정상 염도에서 갯고둥은 먹이를 찾아 활발하게 움직이는 일상행동을 해요.',no:'❌ 아쉬워요! 정상 염도에서 갯고둥이 자유롭게 먹이를 먹는 행동을 뭐라고 할까요?'},
+  {bg:'#FEF4D0',em:'☀️',title:'상황 3',sit:'여름 뙤약볕에 갯벌 웅덩이 물이 많이 증발해서 염도가 43 PSU가 됐어요. 갯고둥이 처음엔 개판을 닫고 있더니, 조금씩 물 밖으로 이동하기 시작했어요.',q:'이 갯고둥은 어떤 행동을 하고 있을까요?',opts:['✨ 일상행동','🛡️ 방어행동','🛡️→🏃 방어 후 회피'],c:2,ok:'⭕ 훌륭해요! 43 PSU 스트레스 상황에서 처음엔 방어행동을 하다가 점차 물 밖으로 이동하는 회피행동으로 바뀌어요.',no:'❌ 힌트! 처음엔 개판을 닫았다가 나중에 물 밖으로 올라가는 두 가지 행동이 순서대로 나타나요!'},
+  {bg:'#D8EEF8',em:'🌧️',title:'상황 4',sit:'비가 하루 종일 내려 염도가 13 PSU로 낮아졌어요. 갯고둥이 처음 몇 시간은 개판을 닫고 있었는데, 시간이 지나자 물 밖으로 나오려 이동하기 시작했어요.',q:'이 갯고둥은 어떤 행동을 하고 있을까요?',opts:['✨ 일상행동','🛡️ 방어행동','🛡️→🏃 방어 후 회피'],c:2,ok:'⭕ 정확해요! 13 PSU에서도 방어행동을 먼저 하다가 회피행동으로 전환해요. 아직 움직일 에너지가 있기 때문이에요!',no:'❌ 다시! 처음엔 가만히 있다가 나중에 물을 피해 이동하는 두 행동이 순서대로 나타나요!'},
+  {bg:'#F8E8D8',em:'🚨',title:'상황 5',sit:'댐에서 물을 방류해 갯벌 염도가 3 PSU로 뚝 떨어졌어요. 바지락은 모두 죽어버렸어요. 그런데 갯고둥은 아직 살아있어요! 개판을 꼭 닫고 전혀 움직이지 않아요.',q:'이 갯고둥은 어떤 행동을 하고 있을까요?',opts:['✨ 일상행동','🛡️ 방어행동','🏃 회피행동'],c:1,ok:'⭕ 맞아요! 3 PSU 극한 상황에서 방어행동으로 버텨요. 회피할 에너지조차 없어서 개판을 닫고 최대한 오래 버티는 거예요.',no:'❌ 다시 생각해봐요! 이 상황에서는 움직일 에너지가 거의 없어요. 개판을 꼭 닫고 가만히 있는 행동은 무엇일까요?'}
+];
+
+const DETD=[
+  {title:'사건 1: 이상한 갯고둥들',em:'🚨',clues:['갯고둥 대부분이 개판을 닫고 전혀 움직이지 않아요','건드려도 반응이 거의 없어요','바지락이 많이 죽어있어요','어제 비가 매우 많이 왔어요'],q:'지금 갯벌의 염도(짠 정도)는 어떤 상태일까요?',opts:[{t:'🌊 33 PSU\n(보통 바닷물)',ok:false},{t:'💧 3 PSU\n(거의 민물)',ok:true},{t:'☀️ 43 PSU\n(많이 짠 물)',ok:false},{t:'🌧️ 13 PSU\n(약간 민물)',ok:false}],ok:'⭕ 훌륭한 추리! 집중호우 후 염도가 3 PSU까지 내려가면 갯고둥은 방어행동을 해요. 바지락 폐사도 함께 나타나는 현상이에요.',no:'❌ 다시 추리해봐요! 어제 비가 많이 와서 바지락이 죽었어요. 어떤 염도 변화가 있었을까요?',rp:'왜 그렇게 생각했나요? 어떤 단서가 도움이 됐나요?'},
+  {title:'사건 2: 활발한 갯고둥 마을',em:'🌿',clues:['갯고둥들이 갯벌 표면을 활발하게 이동하고 있어요','더듬이를 내밀고 여기저기 먹이를 찾고 있어요','개판이 열려있고 활발하게 움직여요','맑은 날씨가 며칠째 계속되고 있어요'],q:'지금 갯벌의 염도(짠 정도)는 어떤 상태일까요?',opts:[{t:'💧 3 PSU\n(거의 민물)',ok:false},{t:'🌧️ 13 PSU\n(약간 민물)',ok:false},{t:'🌊 33 PSU\n(보통 바닷물)',ok:true},{t:'☀️ 43 PSU\n(매우 짠 물)',ok:false}],ok:'⭕ 정확해요! 갯고둥이 가장 활발하게 움직이는 건 33 PSU 정상 염도 상태예요.',no:'❌ 다시 생각해봐요! 갯고둥이 가장 활발하게 움직이는 염도가 어디였는지 개념학습을 다시 확인해봐요.',rp:'어떤 단서를 보고 그 염도라고 생각했나요?'},
+  {title:'사건 3: 물 밖으로 이동하는 갯고둥들',em:'⬆️',clues:['갯고둥들이 물 밖으로 이동하려 해요','처음에는 가만히 있다가 점점 물 밖으로 이동해요','일부는 아직 개판을 닫고 있어요','맑고 더운 여름날이에요'],q:'지금 갯벌의 염도(짠 정도)는 어떤 상태일까요?',opts:[{t:'🌊 33 PSU\n(보통 바닷물)',ok:false},{t:'💧 3 PSU\n(거의 민물)',ok:false},{t:'☀️ 43 PSU\n(많이 짠 물)',ok:true},{t:'🌧️ 13 PSU\n(약간 민물)',ok:true}],ok:'⭕ 잘 추리했어요! 43 PSU나 13 PSU에서 갯고둥은 방어행동을 하다가 물 밖으로 이동하는 회피행동으로 전환해요!',no:'❌ 다시 살펴봐요! 갯고둥이 물을 피해 위로 올라가는 건 회피행동이에요. 어떤 염도에서 이런 행동이 나타날까요?',rp:'갯고둥의 행동에서 어떤 단서를 찾았나요?'}
+];
+
+const QZD=[
+  {type:'ox',q:'갯고둥은 염도가 변해도 항상 같은 행동을 해요.',c:'X',
+   ok:'❌ X예요! 갯고둥은 염도에 따라 행동이 달라져요. 33 PSU에선 일상행동, 스트레스 상황에선 방어·회피행동을 해요.',
+   no:'⭕ O라고 생각했군요! 갯고둥은 염도에 따라 행동이 달라져요. 개념학습 탭에서 다시 확인해봐요.'},
+  {type:'ox',q:'갯고둥이 개판을 닫고 움직이지 않으면 죽은 거예요.',c:'X',
+   ok:'❌ X예요! 방어행동으로 개판을 닫고 버티는 거예요. 환경이 회복되길 기다리는 행동이에요.',
+   no:'⭕ O라고 생각했군요! 개판을 닫고 가만히 있는 건 죽은 게 아니라 몸을 보호하는 방어행동이에요.'},
+  {type:'ox',q:'33 PSU는 우리나라 연안의 정상 염도예요.',c:'O',
+   ok:'⭕ 맞아요! 33 PSU는 우리나라 연안 바닷물의 평균 염도예요. 갯고둥이 가장 활발하게 활동하는 상태예요.',
+   no:'❌ 33 PSU가 맞아요! 우리나라 연안 바닷물은 평균 33 PSU 정도예요. 개념학습 탭에서 확인해봐요.'},
+  {type:'mc',q:'갯고둥이 물 밖으로 이동하려는 행동을 무엇이라고 하나요?',opts:['일상행동','방어행동','회피행동','수면행동'],c:2,
+   ok:'⭕ 맞아요! 염도가 불편한 환경에서 벗어나기 위해 물 밖으로 이동하는 행동을 회피행동이라고 해요.',
+   no:'❌ 아쉬워요! 스트레스 환경에서 벗어나기 위해 물 밖으로 이동하는 행동이에요. 개념학습 탭에서 확인해봐요.'},
+  {type:'mc',q:'갯벌 염도가 3 PSU로 낮아졌을 때 갯고둥의 주된 행동은?',opts:['활발하게 먹이 활동','개판 닫고 움직임 최소화','물 밖으로 이동','빠르게 이동'],c:1,
+   ok:'⭕ 정확해요! 3 PSU에서 갯고둥은 개판을 닫고 움직임을 최소화하는 방어행동을 해요.',
+   no:'❌ 3 PSU는 거의 민물 수준이에요. 이때 갯고둥은 개판을 닫고 가만히 버티는 방어행동을 해요.'},
+  {type:'mc',q:'집중호우나 댐 방류로 갯벌 염도가 낮아지는 것은 무엇과 관련이 있나요?',opts:['지진','기후 변화','인구 증가','공업 발달'],c:1,
+   ok:'⭕ 맞아요! 기후 변화로 집중호우가 잦아지면서 갯벌 염도 변화도 더 자주 일어나고 있어요.',
+   no:'❌ 최근 집중호우가 잦아지는 현상과 연관된 환경 문제예요. 개념학습 탭을 다시 읽어봐요.'},
+  {type:'ox',q:'갯고둥은 13 PSU에서 처음부터 끝까지 방어행동만 해요.',c:'X',
+   ok:'❌ X예요! 13 PSU에서 갯고둥은 처음엔 방어행동을 하다가 나중엔 물 밖으로 이동하는 회피행동으로 바뀌어요.',
+   no:'⭕ O라고 생각했군요! 13 PSU에서 갯고둥은 시간이 지나면서 방어행동에서 회피행동으로 바뀌어요.'},
+  {type:'mc',q:'갯고둥의 개판은 주로 어떤 역할을 하나요?',opts:['먹이를 잡는 데 사용','껍데기 입구를 막아 몸을 보호','이동할 때 사용','숨쉬는 구멍'],c:1,
+   ok:'⭕ 정확해요! 개판은 껍데기 입구를 막아 외부 환경으로부터 몸을 보호하는 역할을 해요.',
+   no:'❌ 개판은 껍데기 입구를 막는 뚜껑이에요. 힘든 환경에서 몸을 보호하는 역할을 해요.'},
+  {type:'mc',q:'갯고둥이 가장 활발하게 활동하는 염도는?',opts:['3 PSU','13 PSU','33 PSU','43 PSU'],c:2,
+   ok:'⭕ 맞아요! 33 PSU 정상 염도에서 갯고둥은 가장 활발하게 움직이며 먹이 활동을 해요.',
+   no:'❌ 정상 바닷물 염도인 33 PSU에서 갯고둥이 가장 활발해요. 개념학습 탭을 다시 확인해봐요.'},
+  {type:'ox',q:'갯고둥의 행동 변화를 관찰하면 갯벌의 환경 상태를 짐작할 수 있어요.',c:'O',
+   ok:'⭕ 맞아요! 갯고둥의 행동은 갯벌 환경을 알려주는 신호예요. 방어행동이 많으면 염도에 변화가 있다는 뜻이에요.',
+   no:'❌ 갯고둥의 행동으로 갯벌 상태를 알 수 있어요! 방어행동이 많으면 염도가 낮아졌다는 신호예요.'},
+  {type:'ox',q:'바지락은 갯고둥보다 낮은 염도에서 더 오래 버틸 수 있어요.',c:'X',
+   ok:'❌ X예요! 갯고둥이 훨씬 강해요. 바지락은 낮은 염도에서 빨리 힘들어지지만, 갯고둥은 개판을 닫고 훨씬 오래 버텨요.',
+   no:'⭕ O라고 생각했군요! 사실 갯고둥이 바지락보다 낮은 염도에서도 훨씬 오래 버틸 수 있어요.'},
+  {type:'mc',q:'갯고둥은 주로 무엇을 먹나요?',opts:['작은 물고기','갯벌 표면의 미세조류와 유기물','모래','다른 조개'],c:1,
+   ok:'⭕ 맞아요! 갯고둥은 갯벌 표면의 아주 작은 식물(미세조류)과 썩은 유기물을 먹으며 갯벌을 깨끗하게 해요.',
+   no:'❌ 갯고둥은 갯벌 표면의 미세조류와 유기물을 먹어요. 갯벌 청소부 역할을 하는 거예요.'},
+  {type:'ox',q:'갯고둥의 껍데기는 8층 나선형이에요.',c:'O',
+   ok:'⭕ 맞아요! 갯고둥 껍데기는 탑처럼 8층으로 쌓인 나선형 구조예요. 황갈색이고 나선 줄무늬가 있어요.',
+   no:'❌ 갯고둥 껍데기는 8층 나선형이에요. 탑처럼 쌓인 모양이랍니다.'},
+  {type:'mc',q:'갯벌은 언제 드러나나요?',opts:['밀물 때','썰물 때','비가 올 때','바람이 강할 때'],c:1,
+   ok:'⭕ 맞아요! 썰물 때 바닷물이 빠져나가면서 갯벌이 드러나요. 이때 갯고둥을 관찰할 수 있어요.',
+   no:'❌ 썰물 때 바닷물이 빠져나가면서 갯벌이 드러나요. 밀물 때는 갯벌이 바닷물에 잠겨요.'},
+  {type:'ox',q:'갯고둥은 개판을 닫으면 물 밖에서도 잠시 버틸 수 있어요.',c:'O',
+   ok:'⭕ 맞아요! 개판으로 껍데기 입구를 막으면 물 밖에서도 일정 시간 버틸 수 있어요. 회피행동으로 물 밖으로 이동하기도 해요.',
+   no:'❌ 갯고둥은 개판을 닫으면 물 밖에서도 버틸 수 있어요. 회피행동이 바로 그 예예요.'},
+  // ── 추가 5문제 ──
+  {type:'mc',q:'갯고둥이 사는 곳을 무엇이라고 하나요?',opts:['깊은 바다','강 상류','조간대 갯벌','호수'],c:2,
+   ok:'⭕ 맞아요! 갯고둥은 바다와 강이 만나는 조간대 갯벌에 살아요. 밀물과 썰물이 반복되는 곳이에요.',
+   no:'❌ 갯고둥은 밀물과 썰물이 반복되는 조간대 갯벌에 살아요. 개념학습 탭을 확인해봐요.'},
+  {type:'ox',q:'갯벌은 다양한 생물이 살아가는 소중한 장소예요.',c:'O',
+   ok:'⭕ 맞아요! 갯벌에는 게, 조개, 갯고둥 등 다양한 생물이 살아요. 바닷물도 깨끗하게 해줘요.',
+   no:'❌ 갯벌은 게, 조개, 갯고둥 같은 다양한 생물이 살아가는 매우 소중한 장소예요.'},
+  {type:'mc',q:'43 PSU의 높은 염도에서 갯고둥이 처음 보이는 행동은?',opts:['활발하게 먹이 활동','개판을 닫고 움직임을 줄임','바로 물 밖으로 이동','빠르게 헤엄침'],c:1,
+   ok:'⭕ 맞아요! 43 PSU에서도 처음엔 개판을 닫고 움직임을 줄이는 방어행동을 해요. 이후 시간이 지나면 회피행동으로 바뀌어요.',
+   no:'❌ 43 PSU에서 갯고둥은 처음엔 개판을 닫고 가만히 있는 방어행동을 해요. 개념학습 탭을 확인해봐요.'},
+  {type:'ox',q:'갯고둥은 한국, 일본, 중국 갯벌에서 볼 수 있어요.',c:'O',
+   ok:'⭕ 맞아요! 갯고둥은 우리나라뿐 아니라 일본, 중국의 갯벌에도 서식해요.',
+   no:'❌ 갯고둥은 한국, 일본, 중국의 갯벌에서 볼 수 있어요. 개념학습 탭에서 확인해봐요.'},
+  {type:'mc',q:'갯벌이 우리에게 주는 도움으로 올바른 것은?',opts:['미세먼지 제거','바닷물 정화와 생물 서식지 제공','지진 예방','강수량 조절'],c:1,
+   ok:'⭕ 맞아요! 갯벌은 바닷물을 깨끗하게 하고 다양한 생물의 집이 돼요. 홍수 피해도 줄여줘요.',
+   no:'❌ 갯벌은 바닷물 정화와 생물 서식지 역할을 해요. 미세먼지 제거나 지진 예방은 갯벌의 역할이 아니에요.'},
+];
+
+// 중복 호출 방지
+let fbLoading = false;
+let gLoading = false;
+let csc=0,scd={},cdet=0,detd={},csl=-1,slx=[0,0,0],slm=[4,4,3],qi=0,qs=0,qa=false,chat=false;
+
+// ═══ 표지→메인 ═══
+function goMain(){
+  const n=document.getElementById('in').value;
+  const school=document.getElementById('is').value;
+  document.getElementById('page-intro').style.display='none';
+  document.getElementById('page-main').style.display='block';
+  document.getElementById('gf').style.display='flex';
+  document.getElementById('hdname').textContent='안녕! 같이 갯벌에 대해 알아보자!';
+  if(n) document.getElementById('jname').value=n;
+  document.getElementById('jdate').value=new Date().toISOString().split('T')[0];
+  renderR(); renderSc(0); renderDet(0);
+  bbl('갯고둥/갯벌에 대해 궁금한 게 있으면 물어봐! 🐚');
+}
+
+// ═══ 탭 전환 (버그 수정 핵심) ═══
+function switchTab(btn){
+  const tid=btn.getAttribute('data-tab');
+  document.querySelectorAll('.tab').forEach(t=>{t.classList.remove('on');t.style.display='none';});
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  const t=document.getElementById(tid);
+  if(t){t.style.display='block';t.classList.add('on');}
+  btn.classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ═══ 슬라이드 ═══
+function openSl(i){
+  document.getElementById('ccv').style.display='none';
+  document.querySelectorAll('.slw').forEach(s=>s.classList.remove('on'));
+  document.getElementById('sl'+i).classList.add('on');
+  csl=i; slx[i]=0; updSl(i);
+}
+function closeSl(){
+  document.getElementById('ccv').style.display='block';
+  document.querySelectorAll('.slw').forEach(s=>s.classList.remove('on'));
+  csl=-1;
+}
+function updSl(i){
+  const t=slm[i],c=slx[i];
+  const subs=[['생김새','사는 곳','먹이','개판의 역할'],['염도란?','3 PSU','13 PSU','43 PSU'],['일상행동','방어행동','회피행동']];
+  document.querySelectorAll('#sl'+i+' .slc').forEach((s,j)=>s.classList.toggle('on',j===c));
+  const de=document.getElementById('sl'+i+'dt');
+  de.innerHTML='';
+  for(let j=0;j<t;j++){const d=document.createElement('div');d.className='sldot'+(j===c?' on':'');de.appendChild(d);}
+  document.getElementById('sl'+i+'pg').textContent=(c+1)+' / '+t;
+  document.getElementById('sl'+i+'lb').textContent=(c+1)+' / '+t+' — '+subs[i][c];
+  const pv=document.getElementById('sl'+i+'pv'),nx=document.getElementById('sl'+i+'nx');
+  pv.disabled=c===0;
+  if(c===t-1){nx.textContent='✅ 학습 완료!';nx.className='slnbtn dn';nx.onclick=closeSl;}
+  else{nx.textContent='다음 →';nx.className='slnbtn nx';nx.onclick=()=>mvSl(i,1);}
+}
+function mvSl(i,d){slx[i]=Math.max(0,Math.min(slm[i]-1,slx[i]+d));updSl(i);}
+
+// ═══ 탐구일지 ═══
+function tc(btn,g){
+  if(g==='beh') document.querySelectorAll('#beh .chip').forEach(c=>c.classList.remove('on'));
+  btn.classList.toggle('on');
+}
+function gchips(id){return[...document.querySelectorAll('#'+id+' .chip.on')].map(c=>c.textContent.trim());}
+
+async function askFB(){
+  if(fbLoading) return; // 중복 호출 방지
+  const o1=document.getElementById('jo1').value.trim(),o2=document.getElementById('jo2').value.trim(),o3=document.getElementById('jo3').value.trim();
+  if(!o1&&!o2&&!o3){toast('관찰 내용을 먼저 써봐요! 📝');return;}
+  fbLoading = true;
+  const sal=gchips('sal').join(', ')||'미선택',beh=gchips('beh').join(', ')||'미선택';
+  const box=document.getElementById('fbbox'),txt=document.getElementById('fbtxt');
+  const btn=document.querySelector('.fb-btn');
+  box.classList.add('on');
+  txt.innerHTML='<div class="ld"><span></span><span></span><span></span></div> 고둥이가 탐구일지를 읽는 중...';
+  btn.disabled=true; btn.style.opacity='0.5';
+  const sys=`너는 "고둥이"야. 초등학교 3-4학년 학생의 갯고둥 관찰 탐구일지에 피드백해줘.
+
+규칙:
+- 한국어로만. 영어 단어 절대 금지 (PSU만 허용)
+- 초등학생 눈높이의 쉬운 말로
+- 딱 3문장으로만 써
+- 첫 문장: 잘한 점 1가지 칭찬
+- 두 번째 문장: 부족하거나 더 생각해볼 점 솔직하게 (칭찬만 하면 안 됨)
+- 세 번째 문장: 다음에 보충하면 좋을 점
+- 마지막엔 🐚
+- 목록, 번호 매기기 절대 금지
+- 염도와 행동이 과학적으로 안 맞으면 짚어줘
+
+핵심 지식: 3PSU=방어행동(개판 닫고 거의 안 움직임, 죽은 게 아님!), 13PSU=방어 후 회피행동, 33PSU=일상행동(가장 활발), 43PSU=방어 후 회피행동`;
+  const usr=`관찰한 염도: ${sal}, 관찰한 행동: ${beh}, 인상 깊은 장면: ${o1||'미작성'}, 행동 이유 추측: ${o2||'미작성'}, 소감: ${o3||'미작성'}`;
+  try{
+    const rep=await callGroq(sys,usr,400);
+    txt.textContent=rep||'고둥이가 잠깐 자리를 비웠어요. 다시 시도해봐요! 🐚';
+    wig(); bbl('탐구일지 피드백 완료! 🐚');
+  }catch{txt.textContent='네트워크 연결을 확인하고 다시 시도해봐요! 🐚';}
+  finally{fbLoading=false; btn.disabled=false; btn.style.opacity='1';}
+}
+
+function saveJ(){
+  const o1=document.getElementById('jo1').value.trim(),o2=document.getElementById('jo2').value.trim(),o3=document.getElementById('jo3').value.trim();
+  if(!o1&&!o2&&!o3){toast('관찰 내용을 하나 이상 입력해줘요! 📝');return;}
+  const rec={id:Date.now(),date:document.getElementById('jdate').value||new Date().toISOString().split('T')[0],name:document.getElementById('jname').value,sal:gchips('sal'),beh:gchips('beh').join(', '),o1,o2,o3};
+  const a=getR(); a.unshift(rec); localStorage.setItem('gb',JSON.stringify(a));
+  renderR(); clrJ(); toast('✅ 탐구일지가 저장됐어요!'); wig();
+}
+function getR(){try{return JSON.parse(localStorage.getItem('gb')||'[]');}catch{return[];}}
+function renderR(){
+  const el=document.getElementById('reca'),a=getR();
+  if(!a.length){el.innerHTML='<div class="empty"><span class="ei">📋</span>아직 저장된 탐구일지가 없어요.<br>위에서 관찰 내용을 기록하고 저장해봐요!</div>';return;}
+  el.innerHTML=a.map(r=>`<div class="ri"><div class="rhd"><div class="rhd-left"><span class="rdt">📅 ${r.date}${r.name?' · '+r.name:''}</span><div class="rtags">${r.sal.map(s=>`<span class="rtag sal">${s}</span>`).join('')}${r.beh?`<span class="rtag beh">${r.beh}</span>`:''}</div></div><button class="rdel" onclick="delR(${r.id})">🗑️</button></div><div class="rbody">${r.o1?`<p><strong>인상 깊은 장면:</strong> ${r.o1}</p>`:''}${r.o2?`<p><strong>행동 이유:</strong> ${r.o2}</p>`:''}${r.o3?`<p><strong>소감:</strong> ${r.o3}</p>`:''}</div></div>`).join('');
+}
+function delR(id){localStorage.setItem('gb',JSON.stringify(getR().filter(r=>r.id!==id)));renderR();toast('기록이 삭제됐어요.');}
+function clrJ(){['jo1','jo2','jo3'].forEach(i=>document.getElementById(i).value='');document.querySelectorAll('#sal .chip,#beh .chip').forEach(c=>c.classList.remove('on'));document.getElementById('fbbox').classList.remove('on');}
+
+// ═══ 행동판단 ═══
+function renderSc(i){
+  const s=SCD[i];
+  document.getElementById('sca').innerHTML=`<div class="scbox"><img class="scimg" src="images/behavior/sc${i+1}.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" alt=""><div class="scph" style="background:${s.bg};display:none;">${s.em}</div><div class="scbody"><div class="badge" style="font-size:15px;padding:4px 14px;">${s.title}</div><div class="scsit">${s.sit}</div><div class="scq">${s.q}</div><div class="scchs" id="sch${i}">${s.opts.map((o,j)=>`<button class="scbtn" onclick="chkSc(${i},${j})">${o}</button>`).join('')}</div><div class="fb" id="sfb${i}"></div></div></div>`;
+  if(scd[i]!==undefined) rstSc(i);
+  scDots(); document.getElementById('scpv').disabled=i===0; document.getElementById('scnx').disabled=i===SCD.length-1;
+}
+function chkSc(i,j){
+  if(scd[i]!==undefined)return;
+  const s=SCD[i],ok=j===s.c; scd[i]={j,ok};
+  document.querySelectorAll(`#sch${i} .scbtn`).forEach((b,k)=>{b.disabled=true;if(k===s.c)b.classList.add('ok');else if(k===j&&!ok)b.classList.add('no');});
+  const fb=document.getElementById('sfb'+i); fb.textContent=ok?s.ok:s.no; fb.className='fb on '+(ok?'ok':'no'); scDots();
+}
+function rstSc(i){
+  const {j,ok}=scd[i],s=SCD[i];
+  document.querySelectorAll(`#sch${i} .scbtn`).forEach((b,k)=>{b.disabled=true;if(k===s.c)b.classList.add('ok');else if(k===j&&!ok)b.classList.add('no');});
+  const fb=document.getElementById('sfb'+i); fb.textContent=ok?s.ok:s.no; fb.className='fb on '+(ok?'ok':'no');
+}
+function mvSc(d){csc=Math.max(0,Math.min(SCD.length-1,csc+d));renderSc(csc);}
+function scDots(){document.getElementById('scdots').innerHTML=SCD.map((_,i)=>`<div class="pdot${i===csc?' on':scd[i]!==undefined?' dn':''}"></div>`).join('');}
+
+// ═══ 갯벌탐정 ═══
+function renderDet(i){
+  const c=DETD[i];
+  document.getElementById('deta').innerHTML=`<div class="detbox"><div class="detbody"><div class="badge" style="font-size:15px;padding:4px 14px;">${c.em} ${c.title}</div><div class="clue"><h4>🔍 탐정 단서</h4>${c.clues.map(cl=>`<div class="clueitem">▪️ ${cl}</div>`).join('')}</div><div class="detq">${c.q}</div><div class="detchs" id="dch${i}">${c.opts.map((o,j)=>`<button class="detbtn" onclick="chkDet(${i},${j})">${o.t.replace('\n','<br>')}</button>`).join('')}</div><div class="fb" id="dfb${i}"></div><div class="reason" id="dr${i}"><div class="rl">💬 ${c.rp}</div><textarea class="jta" placeholder="내 생각을 써봐요..." style="min-height:60px;"></textarea></div></div><div class="detnav"><button class="n2btn" onclick="mvDet(-1)" ${i===0?'disabled':''}>← 이전 사건</button><span style="font-size:12px;color:var(--text-lt);">${i+1} / ${DETD.length}</span><button class="n2btn" onclick="mvDet(1)" ${i===DETD.length-1?'disabled':''}>다음 사건 →</button></div></div>`;
+  if(detd[i]!==undefined) rstDet(i);
+}
+function chkDet(i,j){
+  if(detd[i]!==undefined)return;
+  const c=DETD[i],ok=c.opts[j].ok; detd[i]={j,ok};
+  document.querySelectorAll(`#dch${i} .detbtn`).forEach((b,k)=>{b.disabled=true;if(c.opts[k].ok)b.classList.add('ok');else if(k===j&&!ok)b.classList.add('no');});
+  const fb=document.getElementById('dfb'+i); fb.textContent=ok?c.ok:c.no; fb.className='fb on '+(ok?'ok':'no');
+  document.getElementById('dr'+i).classList.add('on');
+}
+function rstDet(i){
+  const {j,ok}=detd[i],c=DETD[i];
+  document.querySelectorAll(`#dch${i} .detbtn`).forEach((b,k)=>{b.disabled=true;if(c.opts[k].ok)b.classList.add('ok');else if(k===j&&!ok)b.classList.add('no');});
+  const fb=document.getElementById('dfb'+i); fb.textContent=ok?c.ok:c.no; fb.className='fb on '+(ok?'ok':'no');
+  document.getElementById('dr'+i).classList.add('on');
+}
+function mvDet(d){cdet=Math.max(0,Math.min(DETD.length-1,cdet+d));renderDet(cdet);}
+
+// ═══ 복습퀴즈 ═══
+let activeQZD = []; // 실제 출제 문제 배열
+let wrongQs = [];   // 틀린 문제 인덱스
+let isRetry = false; // 오답 재도전 모드
+
+function startQ() {
+  qi=0; qs=0; qa=false; wrongQs=[]; isRetry=false;
+  document.getElementById('qzintro').style.display='none';
+  document.getElementById('qzplay').style.display='block';
+  document.getElementById('qzres').style.display='none';
+  // QZD를 섞어서 출제 (매번 다른 순서)
+  activeQZD = [...QZD].sort(()=>Math.random()-0.5).slice(0,10);
+  renderQ(0);
+}
+
+async function startRetry() {
+  // 틀린 문제만 다시 풀기
+  isRetry = true;
+  const retryList = wrongQs.map(i => activeQZD[i]);
+  activeQZD = retryList;
+  qi=0; qs=0; qa=false; wrongQs=[];
+  document.getElementById('qzres').style.display='none';
+  document.getElementById('qzplay').style.display='block';
+  renderQ(0);
+}
+
+
+function renderQ(i) {
+  qa=false;
+  const q=activeQZD[i];
+  const total=activeQZD.length;
+  document.getElementById('qpf').style.width=((i/total)*100)+'%';
+  const L=['①','②','③','④'];
+  const isAI = i >= QZD.length;
+  const aiTag = isAI ? '<span style="font-size:10px;background:#E8F4EA;color:#3A6A50;padding:2px 8px;border-radius:10px;margin-left:6px;">🤖 AI</span>' : '';
+  let opts = q.type==='ox'
+    ? `<div class="oxrow"><button class="oxbtn O" onclick="ansQ('O',${i})">O</button><button class="oxbtn X" onclick="ansQ('X',${i})">X</button></div>`
+    : `<div class="qopts">${q.opts.map((o,j)=>`<button class="qopt" onclick="ansQ(${j},${i})"><span class="olt">${L[j]}</span>${o}</button>`).join('')}</div>`;
+  const isLast = i===total-1;
+  document.getElementById('qzcard').innerHTML=`
+    <div class="qcard">
+      <div class="qnum">문제 ${i+1} / ${total}${aiTag}</div>
+      <div class="qq">${q.q}</div>
+      ${opts}
+      <div class="qfb" id="qfb"></div>
+      <button class="qnext" id="qnxt" onclick="nxtQ(${i})">${isLast?'결과 보기 🎉':'다음 문제 →'}</button>
+    </div>`;
+}
+
+function ansQ(ch, i) {
+  if(qa) return; qa=true;
+  const q=activeQZD[i];
+  const ok = q.type==='ox' ? ch===q.c : ch===q.c;
+  if(ok) qs++;
+  else wrongQs.push(i);
+  const fb=document.getElementById('qfb');
+  fb.innerHTML=(ok?q.ok:q.no)+(!ok?'<br><button class="clink" onclick="goConc()">📖 개념 다시 보기</button>':'');
+  fb.className='qfb on '+(ok?'ok':'no');
+  if(q.type==='ox'){
+    document.querySelectorAll('.oxbtn').forEach(b=>{
+      b.disabled=true;
+      if(b.textContent.trim()===q.c) b.classList.add('ok');
+      else if(b.textContent.trim()===String(ch)&&!ok) b.classList.add('no');
+    });
+  } else {
+    document.querySelectorAll('.qopt').forEach((b,j)=>{
+      b.disabled=true;
+      if(j===q.c) b.classList.add('ok');
+      else if(j===ch&&!ok) b.classList.add('no');
+    });
+  }
+  document.getElementById('qnxt').classList.add('on');
+}
+
+function goConc(){
+  const btn=document.querySelector('.nb[data-tab="t1"]'); switchTab(btn); toast('개념학습 탭에서 내용을 확인해봐요!');
+}
+
+function nxtQ(i){
+  if(i===activeQZD.length-1) showRes();
+  else { qi++; renderQ(qi); }
+}
+
+async function showRes() {
+  document.getElementById('qzplay').style.display='none';
+  document.getElementById('qzres').style.display='block';
+  const total=activeQZD.length;
+  const pct=Math.round(qs/total*100);
+  let em;
+  if(pct>=90) em='🏆';
+  else if(pct>=70) em='🌟';
+  else if(pct>=50) em='🐚';
+  else em='💪';
+
+  // 틀린 문제 목록
+  const wrongList = wrongQs.map(i=>activeQZD[i].q);
+  const retryBtn = wrongQs.length>0
+    ? `<button class="rbtn retry" onclick="startRetry()">❌ 틀린 ${wrongQs.length}문제 다시 풀기</button>`
+    : '';
+
+  // 결과 화면 먼저 표시 (AI 피드백 로딩 중)
+  document.getElementById('qzrescont').innerHTML=`
+    <span class="em">${em}</span>
+    <h3>${isRetry?'오답 재도전 완료!':'퀴즈 완료!'}</h3>
+    <div class="sc">${qs} / ${total}</div>
+    <div id="ai-result-fb" style="margin:14px 0;padding:13px 15px;background:#FFFBE8;border:1.5px dashed var(--yellow);border-radius:var(--rs);font-size:13px;color:#7A6020;line-height:1.7;text-align:left;">
+      <div class="ld"><span></span><span></span><span></span></div> 고둥이가 결과를 분석하는 중...
+    </div>
+    <div class="resbtns">
+      ${retryBtn}
+      <button class="rbtn retry" onclick="startQ()">🔄 처음부터 다시!</button>
+      <button class="rbtn review" onclick="goConc()">📖 개념 복습하기</button>
+    </div>`;
+
+  // AI 피드백 생성
+  const sys=`너는 "고둥이"야. 초등학교 3-4학년 학생의 갯벌 퀴즈 결과를 보고 피드백해줘.
+- 한국어로만, 3문장 이내
+- 단순히 점수가 아쉽다는 말 금지
+- 틀린 문제를 보고 어떤 개념이 부족한지 구체적으로 짚어줘
+- 예: "갯고둥의 행동 유형 구분이 조금 헷갈리는 것 같아요. 방어행동과 회피행동의 차이를 개념학습 탭에서 다시 확인해봐요"
+- 마지막엔 🐚
+- 과한 칭찬 금지, 목록 나열 금지, 논문체 금지
+
+[개념 분류]
+- 방어/회피/일상행동 → 갯고둥 행동 유형
+- 3PSU/13PSU/33PSU/43PSU → 염도 개념
+- 개판 역할 → 갯고둥 구조
+- 갯벌 역할/생물 → 갯벌 생태
+- 바지락 비교 → 생물 비교
+- 기후변화 → 환경 변화`;
+
+  const wrongSummary = wrongList.length > 0
+    ? `틀린 문제: ${wrongList.slice(0,3).join(', ')}${wrongList.length>3?` 외 ${wrongList.length-3}개`:''}`
+    : '모두 정답';
+  const userMsg = `${total}문제 중 ${qs}개 정답(${pct}%). ${wrongSummary}`;
+
+  try {
+    const rep = await callGroq(sys, userMsg, 150);
+    document.getElementById('ai-result-fb').textContent = rep || `${qs}/${total} 문제를 맞혔어요! 🐚`;
+    wig();
+  } catch {
+    document.getElementById('ai-result-fb').textContent = `${qs}/${total} 문제를 맞혔어요! ${wrongQs.length>0?'틀린 문제를 다시 풀어봐요.':''} 🐚`;
+  }
+}
+
+// ═══ 고둥이 ═══
+function togChat(){chat=!chat;document.getElementById('gfchat').classList.toggle('on',chat);document.getElementById('gfbbl').classList.remove('on');}
+function bbl(msg){const b=document.getElementById('gfbbl');b.textContent=msg;b.classList.add('on');setTimeout(()=>b.classList.remove('on'),3500);}
+function wig(){const b=document.getElementById('gfbtn');b.classList.add('gfwig');setTimeout(()=>b.classList.remove('gfwig'),600);}
+
+async function sendG(){
+  if(gLoading) return;
+  const inp=document.getElementById('gfinp'),msg=inp.value.trim();
+  if(!msg) return;
+  inp.value=''; gLoading=true;
+  const resp=document.getElementById('gfresp');
+  const sendbtn=document.querySelector('.gfsend');
+  resp.innerHTML='<div class="ld"><span></span><span></span><span></span></div>';
+  sendbtn.disabled=true;
+  const sys=`너는 "고둥이"야. 초등학교 3-4학년 학생들을 위한 갯벌 탐구 학습 도우미야.
+
+[답변 가능한 범위]
+갯벌에 관한 모든 것에 답해줘.
+- 갯벌 동물: 갯고둥, 바지락, 게, 갯지렁이, 망둥이, 짱뚱어, 굴, 고둥류, 불가사리, 갯강구 등
+- 갯벌 식물: 칠면초, 갈대, 퉁퉁마디, 나문재, 해홍나물, 염생식물 등
+- 갯벌 환경: 염도(PSU), 밀물/썰물, 조간대, 갯벌 흙, 갯벌의 역할
+- 기후변화와 갯벌: 집중호우, 염도 변화, 생물 피해
+- 갯고둥 행동: 방어행동, 회피행동, 일상행동, 개판
+
+[답변 규칙]
+- 무조건 한국어로만 답해
+- 초등학생도 이해할 수 있게 설명하기
+- 2~4문장으로 짧게 답하기
+- 어려운 용어는 쉬운 말로 바로 풀어 설명하기
+- 이모지는 최대 1개만 사용하기 (🐚 🌊 🦀 중 하나)
+- 말끝은 부드럽게 마무리하기
+
+[절대 사용 금지 표현]
+극한 환경 / 생존 전략 / 삼투압 조절 / 스트레스 반응 / 매우 흥미로운 질문이네요 / 놀라운 사실이에요 / 치명적이에요 / 영어 단어
+
+[핵심 지식]
+- 33PSU: 갯고둥이 편안하게 활동. 먹이를 찾으며 천천히 움직임
+- 3PSU: 개판 꼭 닫고 가만히 있음. 죽은 게 아니라 몸을 보호하는 행동
+- 13PSU: 처음엔 가만히 있다가 시간이 지나면서 물 밖으로 이동
+- 43PSU: 처음엔 움직임이 줄다가 시간이 지나면서 물 밖으로 이동
+- 개판: 껍데기 입구를 막는 단단한 뚜껑
+- 갯벌: 밀물/썰물에 잠겼다 드러나는 진흙 땅
+- 갯지렁이: 갯벌 속에 사는 환형동물. 갯벌을 뒤집어 정화하는 역할
+- 바지락: 갯벌에 사는 이매패류. 염도가 낮아지면 갯고둥보다 빨리 힘들어함
+- 게: 갯벌에 굴을 파고 사는 갑각류
+- 망둥이/짱뚱어: 갯벌 위를 기어다니는 물고기
+- 칠면초: 갯벌 가장자리에 사는 붉은 식물. 계절마다 색이 바뀜
+- 갈대: 갯벌 주변에 자라는 키 큰 풀. 물새들의 서식지
+- 퉁퉁마디/나문재: 갯벌에 사는 염생식물. 짠 환경에서도 잘 자람
+
+[갯벌/갯벌 생물과 관련 없는 질문엔 이렇게만 답해]
+"그건 고둥이가 잘 모르는 내용이에요! 갯고둥이나 갯벌에 대해 궁금한 게 있으면 뭐든 물어봐요 🐚"
+
+[말투 예시]
+Q: 갯벌은 언제 보여요?
+A: 썰물이 되면 바닷물이 빠져나가면서 갯벌이 드러나요 🌊
+
+Q: 갯지렁이는 뭐예요?
+A: 갯지렁이는 갯벌 속에 사는 작은 생물이에요. 갯벌 흙을 뒤집어 주면서 갯벌을 깨끗하게 하는 역할을 해요 🦀
+
+Q: 갯고둥이 왜 안 움직여요?
+A: 물의 염도가 낮아지면 갯고둥이 개판을 닫고 가만히 있을 수 있어요. 죽은 것이 아니라 몸을 보호하는 행동이에요 🐚
+
+Q: PSU가 뭐예요?
+A: PSU는 바닷물이 얼마나 짠지 알려주는 숫자예요. 숫자가 높을수록 바닷물이 더 짜답니다 🐚`;
+
+  try{
+    const rep=await callGroq(sys, msg, 300);
+    resp.textContent=rep||'고둥이가 잠깐 자리를 비웠어요. 다시 물어봐요 🐚';
+    wig();
+  }catch{resp.textContent='네트워크 연결을 확인해봐요 🐚';}
+  finally{gLoading=false; sendbtn.disabled=false;}
+}
+
+// ═══ 토스트 ═══
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2800);}
+
+// ═══ 초기화 ═══
+document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    if(i===0){t.classList.add('on');t.style.display='block';}
+    else{t.classList.remove('on');t.style.display='none';}
+  });
+  document.getElementById('jdate').value=new Date().toISOString().split('T')[0];
+});
+</script>
+</body>
+</html>
